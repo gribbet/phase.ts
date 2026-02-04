@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "jsxImportSource": "phase.ts",
+    "strict": true,
+    "noEmit": true,
+    "paths": {
+      "phase.ts": ["../src/index.ts"],
+      "phase.ts/jsx-runtime": ["../src/jsx-runtime.ts"],
+      "phase.ts/jsx-dev-runtime": ["../src/jsx-dev-runtime.ts"]
+    }
+  },
+  "include": ["src"]
+}
