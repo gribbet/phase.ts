@@ -1,4 +1,4 @@
-import { createRoot, effect, onCleanup, untrack } from "signals.ts";
+import { effect, onCleanup, root, SIGNAL, untrack } from "signals.ts";
 
 export type Component<
   P extends Record<string, unknown> = Record<string, unknown>,
@@ -44,7 +44,8 @@ export const mount = (
   if (Array.isArray(child))
     return child.flatMap(_ => mount(_, container, anchor));
 
-  if (typeof child === "function") {
+  if (SIGNAL in child) {
+    const signal = child;
     const marker = document.createTextNode("");
     container.insertBefore(marker, anchor ?? null);
 
@@ -52,7 +53,7 @@ export const mount = (
     let currentNodes: Node[] = [];
 
     effect(() => {
-      const nextValue = child();
+      const nextValue = signal();
 
       if (Array.isArray(nextValue)) {
         nodeMap = reconcile(container, nextValue, nodeMap, marker);
@@ -112,7 +113,7 @@ const reconcile = (
     let entry = cache.get(item);
     if (entry) cache.delete(item);
     else
-      createRoot(dispose => {
+      root(dispose => {
         const nodes = mount(item, parent, cursor);
         entry = { nodes, dispose };
       });

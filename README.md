@@ -6,10 +6,10 @@ A lightweight reactive UI library.
 
 ### Counter
 ```tsx
-import { createSignal, render } from "phase.ts";
+import { signal, render } from "phase.ts";
 
 const Counter = () => {
-  const [count, setCount] = createSignal(0);
+  const [count, setCount] = signal(0);
 
   return (
     <>
@@ -25,10 +25,10 @@ render(() => <Counter />, document.body);
 
 ### Mapped List
 ```tsx
-import { createSignal, map, render } from "phase.ts";
+import { signal, map, render } from "phase.ts";
 
 const List = () => {
-  const [items, setItems] = createSignal(["A", "B", "C"]);
+  const [items, setItems] = signal(["A", "B", "C"]);
 
   return (
     <ul>

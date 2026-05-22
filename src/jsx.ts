@@ -1,9 +1,7 @@
-export type NonMethodKeys<T> = {
-  [K in keyof T]: T[K] extends () => unknown ? never : K;
-}[keyof T];
+import type { MaybeSignal, SIGNAL } from "signals.ts";
 
 export type CSSProperties = {
-  [K in NonMethodKeys<CSSStyleDeclaration>]?: string | number | undefined;
+  [K in keyof CSSStyleDeclaration]?: string | number | undefined;
 } & {
   [key: string]: string | number | undefined;
 };
@@ -27,7 +25,11 @@ declare global {
       props: P;
       children: Element[];
     };
-
+    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+    interface ElementSignal {
+      (): Element;
+      [SIGNAL]: true;
+    }
     type Element =
       | Node
       | string
@@ -35,18 +37,12 @@ declare global {
       | boolean
       | undefined
       | Element[]
-      | (() => Element)
-      | (() => Element[])
       | VElement
-      | VComponent;
-
-    type DomProps<T> = Pick<T, NonMethodKeys<T>>;
-
-    type CSSProperties = import("./jsx").CSSProperties;
-    type StyleValue = import("./jsx").StyleValue;
+      | VComponent
+      | ElementSignal;
 
     type Reactive<T> = {
-      [K in keyof T]?: T[K] | (() => T[K] | undefined);
+      [K in keyof T]?: MaybeSignal<T[K] | undefined>;
     };
 
     type EventHandlers<T> = {
@@ -56,8 +52,8 @@ declare global {
     };
 
     type BaseAttributes<T> = {
-      class?: string | (() => string | undefined);
-      style?: StyleValue | StyleValue[] | (() => StyleValue | StyleValue[]);
+      class?: MaybeSignal<string | undefined>;
+      style?: MaybeSignal<StyleValue | StyleValue[] | undefined>;
       ref?: (_: T) => void;
       children?: Element;
       key?: unknown;
@@ -65,7 +61,7 @@ declare global {
     };
 
     type ElementProps<T> = Omit<
-      DomProps<T>,
+      T,
       "className" | "classList" | "children" | "style"
     >;
 

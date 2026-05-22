@@ -1,7 +1,7 @@
-import { createSignal, map } from "phase.ts";
+import { signal, map } from "phase.ts";
 
 const Counter = () => {
-  const [count, setCount] = createSignal(0);
+  const [count, setCount] = signal(0);
 
   return (
     <section>
@@ -14,7 +14,7 @@ const Counter = () => {
 };
 
 const List = () => {
-  const [items] = createSignal(["A", "B", "C", "D"]);
+  const [items] = signal(["A", "B", "C", "D"]);
 
   return (
     <section>
