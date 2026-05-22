@@ -1,5 +1,8 @@
 import type { MaybeSignal, SIGNAL } from "signals.ts";
 
+export const VELEMENT = Symbol("velement");
+export const VCOMPONENT = Symbol("vcomponent");
+
 export type CSSProperties = {
   [K in keyof CSSStyleDeclaration]?: string | number | undefined;
 } & {
@@ -13,6 +16,7 @@ declare global {
   namespace JSX {
     type VElement<T extends keyof IntrinsicElements = keyof IntrinsicElements> =
       {
+        [VELEMENT]: true;
         tag: T;
         attributes: Partial<IntrinsicElements[T]>;
         children: Element[];
@@ -21,6 +25,7 @@ declare global {
     type VComponent<
       P extends Record<string, unknown> = Record<string, unknown>,
     > = {
+      [VCOMPONENT]: true;
       component: (props: P) => Element;
       props: P;
       children: Element[];

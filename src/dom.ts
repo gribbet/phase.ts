@@ -1,30 +1,45 @@
 import { effect, onCleanup, root, SIGNAL, untrack } from "signals.ts";
 
+import { VCOMPONENT, VELEMENT } from "./jsx";
+
 export type Component<
   P extends Record<string, unknown> = Record<string, unknown>,
 > = (props: P) => JSX.Element;
 
-export const h = (
-  type: keyof JSX.IntrinsicElements | Component,
-  props: unknown,
+export function h<T extends keyof JSX.IntrinsicElements>(
+  type: T,
+  props: JSX.IntrinsicElements[T] | null,
   ...children: JSX.Element[]
-): JSX.Element => {
-  if (typeof type === "string") {
-    const tag = type;
+): JSX.VElement<T>;
+export function h<P extends Record<string, unknown>>(
+  type: Component<P>,
+  props: P | null,
+  ...children: JSX.Element[]
+): JSX.VComponent<P>;
+export function h(
+  type: keyof JSX.IntrinsicElements | Component,
+  props: Record<string, unknown> | null,
+  ...children: JSX.Element[]
+): JSX.Element;
+export function h(
+  type: keyof JSX.IntrinsicElements | Component,
+  props: Record<string, unknown> | null,
+  ...children: JSX.Element[]
+): JSX.Element {
+  if (typeof type === "string")
     return {
-      tag,
+      [VELEMENT]: true,
+      tag: type,
       attributes: props ?? {},
       children,
-    } satisfies JSX.VElement;
-  } else {
-    const component = type;
-    return {
-      component,
-      props: props as Record<string, unknown>,
-      children,
-    } satisfies JSX.VComponent;
-  }
-};
+    };
+  return {
+    [VCOMPONENT]: true,
+    component: type,
+    props: props ?? {},
+    children,
+  };
+}
 
 export const Fragment = ({ children }: { children?: JSX.Element }) => children;
 
@@ -53,21 +68,16 @@ export const mount = (
     let currentNodes: Node[] = [];
 
     effect(() => {
-      const nextValue = signal();
-
-      if (Array.isArray(nextValue)) {
-        nodeMap = reconcile(container, nextValue, nodeMap, marker);
-        currentNodes = [...nodeMap.values()].flatMap(_ => _.nodes);
-      } else {
-        currentNodes.forEach(_ => _.parentNode?.removeChild(_));
-        nodeMap.forEach(_ => _.dispose());
-        nodeMap.clear();
-
-        currentNodes = mount(nextValue, container, marker);
-      }
+      const next = signal();
+      const items = Array.isArray(next) ? next : [next];
+      nodeMap = reconcile(container, items, nodeMap, marker);
+      currentNodes = [...nodeMap.values()].flatMap(_ => _.nodes);
     });
 
-    onCleanup(() => nodeMap.forEach(_ => _.dispose()));
+    onCleanup(() => {
+      nodeMap.forEach(_ => _.dispose());
+      remove(currentNodes);
+    });
 
     return [...currentNodes, marker];
   }
@@ -132,18 +142,21 @@ const reconcile = (
   }
 
   cache.forEach(({ nodes, dispose }) => {
-    nodes.forEach(_ => _.parentNode?.removeChild(_));
+    remove(nodes);
     dispose();
   });
 
   return next;
 };
 
+const remove = (nodes: Node[]) =>
+  nodes.forEach(_ => _.parentNode?.removeChild(_));
+
 const isVElement = (_: JSX.Element): _ is JSX.VElement =>
-  typeof _ === "object" && "tag" in _ && "attributes" in _;
+  typeof _ === "object" && VELEMENT in _;
 
 const isVComponent = (_: JSX.Element): _ is JSX.VComponent =>
-  typeof _ === "object" && "component" in _ && "props" in _;
+  typeof _ === "object" && VCOMPONENT in _;
 
 const isSvg = (tag: string) => svgTags.has(tag);
 
@@ -155,32 +168,35 @@ const applyAttributes = (
     if (key === "children") continue;
 
     if (key === "ref" && typeof value === "function") {
-      (value as (_: Element) => void)(element);
+      const ref = value as (_: Element) => void;
+      ref(element);
       continue;
     }
 
-    if (key.startsWith("on") && key[2]) {
+    if (key.startsWith("on") && key[2] && typeof value === "function") {
       const eventName = key.slice(2).toLowerCase();
       const listener = value as EventListener;
       element.addEventListener(eventName, listener);
       onCleanup(() => element.removeEventListener(eventName, listener));
-    } else if (typeof value === "function")
-      effect(() => setAttribute(element, key, (value as () => unknown)()));
+    } else if (typeof value === "function" && SIGNAL in value)
+      effect(() => setAttribute(element, key, (value as JSX.ElementSignal)()));
     else setAttribute(element, key, value);
   }
 };
 
 const setAttribute = (element: Element, key: string, value: unknown) => {
-  if (key === "style" && "style" in element)
-    updateStyle(element as HTMLElement, value);
-  else if (element instanceof HTMLElement && key in element)
-    (element as unknown as Record<string, unknown>)[key] = value;
-  else if (
-    typeof value === "string" ||
-    typeof value === "number" ||
-    typeof value === "undefined"
+  if (
+    key === "style" &&
+    (element instanceof HTMLElement || element instanceof SVGElement)
   )
-    element.setAttribute(key, String(value ?? ""));
+    updateStyle(element, value);
+  else if (element instanceof HTMLElement && key in element)
+    Reflect.set(element, key, value);
+  else if (value === undefined || value === null || value === false)
+    element.removeAttribute(key);
+  else if (value === true) element.setAttribute(key, "");
+  else if (typeof value === "string" || typeof value === "number")
+    element.setAttribute(key, String(value));
 };
 
 const updateStyle = (element: HTMLElement | SVGElement, value: unknown) => {
@@ -193,10 +209,14 @@ const updateStyle = (element: HTMLElement | SVGElement, value: unknown) => {
       for (const item of v) apply(item, false);
     } else if (typeof v === "object" && v !== null) {
       if (clear) element.style.cssText = "";
-      for (const [k, val] of Object.entries(v))
+      for (const [k, val] of Object.entries(v) as [string, unknown][])
         if (val === undefined || val === null) element.style.removeProperty(k);
-        else if (k.startsWith("--")) element.style.setProperty(k, String(val));
-        else (element.style as any)[k] = val;
+        else if (k.startsWith("--"))
+          element.style.setProperty(
+            k,
+            typeof val === "number" ? String(val) : (val as string),
+          );
+        else Reflect.set(element.style, k, val);
     } else if (clear) element.style.cssText = "";
   };
   apply(value, true);

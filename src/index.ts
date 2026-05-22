@@ -8,5 +8,5 @@ import { mount } from "./dom";
 
 export const render = (code: () => JSX.Element, container: HTMLElement) => {
   container.innerHTML = "";
-  root(() => mount(code(), container));
+  root(_ => (mount(code(), container), _));
 };
