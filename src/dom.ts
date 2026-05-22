@@ -1,4 +1,4 @@
-import { createEffect, createRoot, onCleanup, untrack } from "./reactive";
+import { createRoot, effect, onCleanup, untrack } from "signals.ts";
 
 export type Component<
   P extends Record<string, unknown> = Record<string, unknown>,
@@ -51,7 +51,7 @@ export const mount = (
     let nodeMap = new Map<unknown, Reconciled>();
     let currentNodes: Node[] = [];
 
-    createEffect(() => {
+    effect(() => {
       const nextValue = child();
 
       if (Array.isArray(nextValue)) {
@@ -164,15 +164,15 @@ const applyAttributes = (
       element.addEventListener(eventName, listener);
       onCleanup(() => element.removeEventListener(eventName, listener));
     } else if (typeof value === "function")
-      createEffect(() =>
-        setAttribute(element, key, (value as () => unknown)()),
-      );
+      effect(() => setAttribute(element, key, (value as () => unknown)()));
     else setAttribute(element, key, value);
   }
 };
 
 const setAttribute = (element: Element, key: string, value: unknown) => {
-  if (element instanceof HTMLElement && key in element)
+  if (key === "style" && "style" in element)
+    updateStyle(element as HTMLElement, value);
+  else if (element instanceof HTMLElement && key in element)
     (element as unknown as Record<string, unknown>)[key] = value;
   else if (
     typeof value === "string" ||
@@ -180,6 +180,25 @@ const setAttribute = (element: Element, key: string, value: unknown) => {
     typeof value === "undefined"
   )
     element.setAttribute(key, String(value ?? ""));
+};
+
+const updateStyle = (element: HTMLElement | SVGElement, value: unknown) => {
+  const apply = (v: unknown, clear: boolean) => {
+    if (typeof v === "string")
+      if (clear) element.style.cssText = v;
+      else element.style.cssText += ";" + v;
+    else if (Array.isArray(v)) {
+      if (clear) element.style.cssText = "";
+      for (const item of v) apply(item, false);
+    } else if (typeof v === "object" && v !== null) {
+      if (clear) element.style.cssText = "";
+      for (const [k, val] of Object.entries(v))
+        if (val === undefined || val === null) element.style.removeProperty(k);
+        else if (k.startsWith("--")) element.style.setProperty(k, String(val));
+        else (element.style as any)[k] = val;
+    } else if (clear) element.style.cssText = "";
+  };
+  apply(value, true);
 };
 
 const svgNamespace = "http://www.w3.org/2000/svg";

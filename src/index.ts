@@ -1,10 +1,9 @@
-import "./jsx";
 export * from "./dom";
-export * from "./reactive";
-export type { Props } from "./types";
+export * from "./jsx";
+
+import { createRoot } from "signals.ts";
 
 import { mount } from "./dom";
-import { createRoot } from "./reactive";
 
 export const render = (code: () => JSX.Element, container: HTMLElement) => {
   container.innerHTML = "";

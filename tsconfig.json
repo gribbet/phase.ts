@@ -9,8 +9,12 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "outDir": "dist",
+    "rootDir": "src",
     "declaration": true,
-    "lib": ["DOM", "DOM.Iterable", "ESNext"]
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "paths": {
+      "signals.ts": ["../signals.ts/src"]
+    }
   },
   "include": ["src"]
 }

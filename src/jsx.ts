@@ -1,4 +1,14 @@
-export {};
+export type NonMethodKeys<T> = {
+  [K in keyof T]: T[K] extends () => unknown ? never : K;
+}[keyof T];
+
+export type CSSProperties = {
+  [K in NonMethodKeys<CSSStyleDeclaration>]?: string | number | undefined;
+} & {
+  [key: string]: string | number | undefined;
+};
+
+export type StyleValue = string | CSSProperties | undefined;
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -30,11 +40,10 @@ declare global {
       | VElement
       | VComponent;
 
-    type NonMethodKeys<T> = {
-      [K in keyof T]: T[K] extends () => unknown ? never : K;
-    }[keyof T];
-
     type DomProps<T> = Pick<T, NonMethodKeys<T>>;
+
+    type CSSProperties = import("./jsx").CSSProperties;
+    type StyleValue = import("./jsx").StyleValue;
 
     type Reactive<T> = {
       [K in keyof T]?: T[K] | (() => T[K] | undefined);
@@ -46,12 +55,9 @@ declare global {
       ) => void;
     };
 
-    type CSSProperties = {
-      [K in NonMethodKeys<CSSStyleDeclaration>]?: string | number | undefined;
-    };
-
     type BaseAttributes<T> = {
       class?: string | (() => string | undefined);
+      style?: StyleValue | StyleValue[] | (() => StyleValue | StyleValue[]);
       ref?: (_: T) => void;
       children?: Element;
       key?: unknown;
@@ -60,7 +66,7 @@ declare global {
 
     type ElementProps<T> = Omit<
       DomProps<T>,
-      "className" | "classList" | "children"
+      "className" | "classList" | "children" | "style"
     >;
 
     type HTMLAttributes<T> = Reactive<ElementProps<T>> &
