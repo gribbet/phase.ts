@@ -8,6 +8,7 @@
     "jsxFragmentFactory": "Fragment",
     "strict": true,
     "noUncheckedIndexedAccess": true,
+    "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
