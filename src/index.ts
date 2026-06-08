@@ -1,8 +1,8 @@
 export * from "./dom";
 export * from "./jsx";
 
-import { root } from "signals.ts";
-export * from "signals.ts";
+import { root } from "@gribbet/signal.ts";
+export * from "@gribbet/signal.ts";
 
 import { mount } from "./dom";
 

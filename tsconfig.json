@@ -12,7 +12,7 @@
     "declaration": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "paths": {
-      "signals.ts": ["../signals.ts/src"]
+      "@gribbet/signal.ts": ["../signal.ts/src"]
     }
   },
   "include": ["src"]

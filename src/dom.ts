@@ -1,4 +1,4 @@
-import { effect, onCleanup, root, SIGNAL, untrack } from "signals.ts";
+import { effect, onCleanup, root, SIGNAL, untrack } from "@gribbet/signal.ts";
 
 import { VCOMPONENT, VELEMENT } from "./jsx";
 

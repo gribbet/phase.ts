@@ -1,4 +1,4 @@
-import type { MaybeSignal, SIGNAL } from "signals.ts";
+import type { MaybeSignal, SIGNAL } from "@gribbet/signal.ts";
 
 export const VELEMENT = Symbol("velement");
 export const VCOMPONENT = Symbol("vcomponent");
