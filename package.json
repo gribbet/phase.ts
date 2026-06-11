@@ -22,7 +22,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "prepublishOnly": "npm run build"
   },
   "license": "MIT",
   "devDependencies": {
