@@ -134,7 +134,8 @@ const reconcile = (
     for (let k = nodes.length - 1; k >= 0; k--) {
       const node = nodes[k];
       if (!node) continue;
-      parent.insertBefore(node, cursor ?? null);
+      if (node.parentNode !== parent || node.nextSibling !== (cursor ?? null))
+        parent.insertBefore(node, cursor ?? null);
       cursor = node;
     }
 
