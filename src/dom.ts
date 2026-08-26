@@ -1,4 +1,4 @@
-import { effect, onCleanup, root, SIGNAL, untrack } from "signlets";
+import { effect, onCleanup, root, SIGNAL, untrack } from "signaloits";
 
 import { VCOMPONENT, VELEMENT } from "./jsx";
 

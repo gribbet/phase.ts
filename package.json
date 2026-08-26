@@ -1,6 +1,6 @@
 {
   "name": "phase.ts",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "A lightweight reactive UI library.",
   "type": "module",
   "main": "dist/index.js",
@@ -33,6 +33,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "signlets": "^1.0.0"
+    "signaloits": "^1.0.0"
   }
 }

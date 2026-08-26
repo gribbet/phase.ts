@@ -1,4 +1,4 @@
-import type { MaybeSignal, SIGNAL } from "signlets";
+import type { MaybeSignal, SIGNAL } from "signaloits";
 
 export const VELEMENT = Symbol("velement");
 export const VCOMPONENT = Symbol("vcomponent");
