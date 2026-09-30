@@ -32,7 +32,7 @@
     "eslint": "^10.4.0",
     "typescript": "^5.9.3"
   },
-  "dependencies": {
-    "signaloits": "^1.0.0"
+  "peerDependencies": {
+    "signaloits": "^1.1.0"
   }
 }
