@@ -1,0 +1,11 @@
+import { defineConfig } from "@gribbet/vite-config";
+
+export default defineConfig({
+  pack: {
+    entry: ["src/index.ts", "src/jsx-runtime.ts"],
+    dts: true,
+    platform: "browser",
+    sourcemap: true,
+    target: "esnext",
+  },
+});

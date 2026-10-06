@@ -6,11 +6,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "phase.ts",
     "strict": true,
-    "noEmit": true,
-    "paths": {
-      "phase.ts": ["../src/index.ts"],
-      "phase.ts/jsx-runtime": ["../src/jsx-runtime.ts"]
-    }
+    "noEmit": true
   },
   "include": ["src"]
 }

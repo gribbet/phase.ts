@@ -28,13 +28,11 @@ const List = () => {
   );
 };
 
-export const App = () => {
-  return (
-    <main>
-      <h1>phase.ts Example</h1>
-      <Counter />
-      <hr />
-      <List />
-    </main>
-  );
-};
+export const App = () => (
+  <main>
+    <h1>phase.ts Example</h1>
+    <Counter />
+    <hr />
+    <List />
+  </main>
+);

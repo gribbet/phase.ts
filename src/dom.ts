@@ -46,7 +46,7 @@ export const Fragment = ({ children }: { children?: JSX.Element }) => children;
 export const mount = (
   child: JSX.Element,
   container: Element | DocumentFragment,
-  anchor: Node | undefined = undefined,
+  anchor?: Node,
 ): Node[] => {
   if (child === null || child === undefined || typeof child === "boolean")
     return [];

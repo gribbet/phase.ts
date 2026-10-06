@@ -35,11 +35,7 @@ import { render, signal } from "phase.ts";
 const Counter = () => {
   const [count, setCount] = signal(0);
 
-  return (
-    <button onClick={() => setCount(count() + 1)}>
-      Count: {count}
-    </button>
-  );
+  return <button onClick={() => setCount(count() + 1)}>Count: {count}</button>;
 };
 
 render(Counter, document.body);

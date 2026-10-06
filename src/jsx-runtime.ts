@@ -1,5 +1,4 @@
 import "./jsx";
-
 import { type Component, Fragment, h } from "./dom";
 
 export { Fragment };

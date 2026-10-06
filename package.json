@@ -2,6 +2,7 @@
   "name": "phase.ts",
   "version": "0.1.10",
   "description": "A lightweight reactive UI library.",
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -17,18 +18,21 @@
     }
   },
   "scripts": {
-    "build": "tsc",
-    "lint": "eslint src",
+    "build": "vp pack",
+    "check": "vp check",
+    "fmt": "vp fmt",
+    "lint": "vp lint",
     "prepublishOnly": "npm run build"
   },
-  "license": "MIT",
   "devDependencies": {
-    "@gribbet/eslint-config": "github:gribbet/eslint-config",
-    "@types/node": "^25.9.1",
-    "eslint": "^10.4.0",
-    "typescript": "^5.9.3"
+    "@gribbet/vite-config": "1.0.0",
+    "typescript": "^5.9.3",
+    "vite-plus": "1.0.0"
   },
   "peerDependencies": {
     "signaloits": "^2.0.2"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0"
   }
 }
