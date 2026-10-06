@@ -1,4 +1,4 @@
-import { defer, effect, resolve, root, untrack } from "signaloits";
+import { defer, derived, effect, map, resolve, untrack } from "signaloits";
 
 import { VCOMPONENT, VELEMENT } from "./jsx";
 
@@ -64,27 +64,35 @@ export const mount = (
     const marker = document.createTextNode("");
     container.insertBefore(marker, anchor ?? null);
 
-    let nodeMap = new Map<unknown, Reconciled>();
-    let currentNodes: Node[] = [];
+    const items = derived<readonly JSX.Element[]>(() => {
+      const next = resolve(signal);
+      return isElementArray(next) ? next : [next];
+    });
+    const entries = map(items, item => {
+      const nodes = mount(untrack(item), container, marker);
+      defer(() => remove(nodes));
+      return nodes;
+    });
 
     effect(() => {
-      const next = resolve(signal);
-      const items = isElementArray(next) ? [...next] : [next];
-      nodeMap = reconcile(container, items, nodeMap, marker);
-      currentNodes = [...nodeMap.values()].flatMap(_ => _.nodes);
+      let cursor: Node = marker;
+
+      for (const nodes of entries().toReversed())
+        for (const node of nodes.toReversed()) {
+          if (node.parentNode !== container || node.nextSibling !== cursor)
+            container.insertBefore(node, cursor);
+          cursor = node;
+        }
     });
 
-    defer(() => {
-      nodeMap.forEach(_ => _.dispose());
-      remove(currentNodes);
-    });
+    defer(() => remove([marker]));
 
-    return [...currentNodes, marker];
+    return [...entries().flat(), marker];
   }
 
   if (isVElement(child)) {
     const { tag, attributes, children } = child;
-    const element = isSvg(tag)
+    const element = isSvg(tag, container)
       ? document.createElementNS(svgNamespace, tag)
       : document.createElement(tag);
     applyAttributes(element, attributes);
@@ -107,49 +115,6 @@ export const mount = (
   return [];
 };
 
-type Reconciled = { nodes: Node[]; dispose: () => void };
-
-const reconcile = (
-  parent: Element | DocumentFragment,
-  items: JSX.Element[],
-  cache: Map<unknown, Reconciled>,
-  anchor: Node | undefined,
-): Map<unknown, Reconciled> => {
-  const next = new Map<unknown, Reconciled>();
-  let cursor = anchor;
-
-  for (let i = items.length - 1; i >= 0; i--) {
-    const item = items[i];
-    let entry = cache.get(item);
-    if (entry) cache.delete(item);
-    else
-      root(dispose => {
-        const nodes = mount(item, parent, cursor);
-        entry = { nodes, dispose };
-      });
-
-    if (!entry) continue;
-    const { nodes } = entry;
-
-    for (let k = nodes.length - 1; k >= 0; k--) {
-      const node = nodes[k];
-      if (!node) continue;
-      if (node.parentNode !== parent || node.nextSibling !== (cursor ?? null))
-        parent.insertBefore(node, cursor ?? null);
-      cursor = node;
-    }
-
-    next.set(item, entry);
-  }
-
-  cache.forEach(({ nodes, dispose }) => {
-    remove(nodes);
-    dispose();
-  });
-
-  return next;
-};
-
 const remove = (nodes: Node[]) =>
   nodes.forEach(_ => _.parentNode?.removeChild(_));
 
@@ -162,7 +127,9 @@ const isVComponent = (_: JSX.Element): _ is JSX.VComponent =>
 const isElementArray = (value: JSX.Element): value is readonly JSX.Element[] =>
   Array.isArray(value);
 
-const isSvg = (tag: string) => svgTags.has(tag);
+const isSvg = (tag: string, parent: Element | DocumentFragment) =>
+  tag === "svg" ||
+  (parent instanceof SVGElement && parent.localName !== "foreignObject");
 
 const applyAttributes = (
   element: Element,
@@ -226,64 +193,3 @@ const updateStyle = (element: HTMLElement | SVGElement, value: unknown) => {
 };
 
 const svgNamespace = "http://www.w3.org/2000/svg";
-const svgTags = new Set([
-  "svg",
-  "animate",
-  "animateMotion",
-  "animateTransform",
-  "circle",
-  "clipPath",
-  "defs",
-  "desc",
-  "ellipse",
-  "feBlend",
-  "feColorMatrix",
-  "feComponentTransfer",
-  "feComposite",
-  "feConvolveMatrix",
-  "feDiffuseLighting",
-  "feDisplacementMap",
-  "feDistantLight",
-  "feDropShadow",
-  "feFlood",
-  "feFuncA",
-  "feFuncB",
-  "feFuncG",
-  "feFuncR",
-  "feGaussianBlur",
-  "feImage",
-  "feMerge",
-  "feMergeNode",
-  "feMorphology",
-  "feOffset",
-  "fePointLight",
-  "feSpecularLighting",
-  "feSpotLight",
-  "feTile",
-  "feTurbulence",
-  "filter",
-  "foreignObject",
-  "g",
-  "image",
-  "line",
-  "linearGradient",
-  "marker",
-  "mask",
-  "metadata",
-  "mpath",
-  "path",
-  "pattern",
-  "polygon",
-  "polyline",
-  "radialGradient",
-  "rect",
-  "set",
-  "stop",
-  "switch",
-  "symbol",
-  "text",
-  "textPath",
-  "tspan",
-  "use",
-  "view",
-]);

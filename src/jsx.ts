@@ -31,7 +31,7 @@ declare global {
       children: Element[];
     };
 
-    type Element =
+    type ElementValue =
       | Node
       | string
       | number
@@ -39,8 +39,9 @@ declare global {
       | undefined
       | readonly Element[]
       | VElement
-      | VComponent
-      | (Signal<unknown> & (() => Element));
+      | VComponent;
+
+    type Element = ElementValue | Signal<ElementValue>;
 
     type Reactive<T> = {
       [K in keyof T]?: MaybeSignal<T[K] | undefined>;
@@ -57,7 +58,6 @@ declare global {
       style?: MaybeSignal<StyleValue | StyleValue[] | undefined>;
       ref?: (_: T) => void;
       children?: Element;
-      key?: unknown;
       [key: `data-${string}`]: unknown;
     };
 
