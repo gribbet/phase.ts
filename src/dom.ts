@@ -6,25 +6,7 @@ export type Component<
   P extends Record<string, unknown> = Record<string, unknown>,
 > = (props: P) => JSX.Element;
 
-type H = {
-  <T extends keyof JSX.IntrinsicElements>(
-    type: T,
-    props: JSX.IntrinsicElements[T] | null,
-    ...children: JSX.Element[]
-  ): JSX.Element;
-  <P extends Record<string, unknown>>(
-    type: Component<P>,
-    props: P | null,
-    ...children: JSX.Element[]
-  ): JSX.Element;
-  (
-    type: keyof JSX.IntrinsicElements | Component,
-    props: Record<string, unknown> | null,
-    ...children: JSX.Element[]
-  ): JSX.Element;
-};
-
-export const h: H = (
+export const createElement = (
   type: keyof JSX.IntrinsicElements | Component,
   props: Record<string, unknown> | null,
   ...children: JSX.Element[]
@@ -43,6 +25,25 @@ export const h: H = (
     children,
   };
 };
+
+type H = {
+  <T extends keyof JSX.IntrinsicElements>(
+    type: T,
+    props: JSX.IntrinsicElements[T] | null,
+    ...children: JSX.Element[]
+  ): JSX.Element;
+  <P extends Record<string, unknown>>(
+    type: Component<P>,
+    props: P | null,
+    ...children: JSX.Element[]
+  ): JSX.Element;
+};
+
+export const h: H = (
+  type: keyof JSX.IntrinsicElements | Component,
+  props: Record<string, unknown> | null,
+  ...children: JSX.Element[]
+): JSX.Element => createElement(type, props, ...children);
 
 export const Fragment = ({ children }: { children?: JSX.Element }) => children;
 

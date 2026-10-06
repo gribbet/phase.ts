@@ -1,4 +1,5 @@
-export * from "./dom";
+export { Fragment, h, mount } from "./dom";
+export type { Component } from "./dom";
 export * from "./jsx";
 
 import { root } from "signaloits";
