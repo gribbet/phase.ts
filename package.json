@@ -33,6 +33,6 @@
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "signaloits": "^1.2.0"
+    "signaloits": "^2.0.2"
   }
 }

@@ -1,4 +1,4 @@
-import { effect, onCleanup, root, SIGNAL, untrack } from "signaloits";
+import { defer, effect, resolve, root, untrack } from "signaloits";
 
 import { VCOMPONENT, VELEMENT } from "./jsx";
 
@@ -56,10 +56,10 @@ export const mount = (
     return [node];
   }
 
-  if (Array.isArray(child))
+  if (isElementArray(child))
     return child.flatMap(_ => mount(_, container, anchor));
 
-  if (SIGNAL in child) {
+  if (typeof child === "function") {
     const signal = child;
     const marker = document.createTextNode("");
     container.insertBefore(marker, anchor ?? null);
@@ -68,13 +68,13 @@ export const mount = (
     let currentNodes: Node[] = [];
 
     effect(() => {
-      const next = signal();
-      const items = Array.isArray(next) ? next : [next];
+      const next = resolve(signal);
+      const items = isElementArray(next) ? [...next] : [next];
       nodeMap = reconcile(container, items, nodeMap, marker);
       currentNodes = [...nodeMap.values()].flatMap(_ => _.nodes);
     });
 
-    onCleanup(() => {
+    defer(() => {
       nodeMap.forEach(_ => _.dispose());
       remove(currentNodes);
     });
@@ -159,6 +159,9 @@ const isVElement = (_: JSX.Element): _ is JSX.VElement =>
 const isVComponent = (_: JSX.Element): _ is JSX.VComponent =>
   typeof _ === "object" && VCOMPONENT in _;
 
+const isElementArray = (value: JSX.Element): value is readonly JSX.Element[] =>
+  Array.isArray(value);
+
 const isSvg = (tag: string) => svgTags.has(tag);
 
 const applyAttributes = (
@@ -178,9 +181,9 @@ const applyAttributes = (
       const eventName = key.slice(2).toLowerCase();
       const listener = value as EventListener;
       element.addEventListener(eventName, listener);
-      onCleanup(() => element.removeEventListener(eventName, listener));
-    } else if (typeof value === "function" && SIGNAL in value)
-      effect(() => setAttribute(element, key, (value as JSX.ElementSignal)()));
+      defer(() => element.removeEventListener(eventName, listener));
+    } else if (typeof value === "function")
+      effect(() => setAttribute(element, key, resolve(value)));
     else setAttribute(element, key, value);
   }
 };

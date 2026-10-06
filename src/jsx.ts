@@ -1,4 +1,4 @@
-import type { MaybeSignal, SIGNAL } from "signaloits";
+import type { MaybeSignal, Signal } from "signaloits";
 
 export const VELEMENT = Symbol("velement");
 export const VCOMPONENT = Symbol("vcomponent");
@@ -30,21 +30,18 @@ declare global {
       props: P;
       children: Element[];
     };
-    // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-    interface ElementSignal {
-      (): Element;
-      [SIGNAL]: true;
-    }
-    type Element =
+
+    type SimpleElement =
       | Node
       | string
       | number
       | boolean
       | undefined
-      | Element[]
+      | readonly Element[]
       | VElement
-      | VComponent
-      | ElementSignal;
+      | VComponent;
+
+    type Element = SimpleElement | Signal<SimpleElement>;
 
     type Reactive<T> = {
       [K in keyof T]?: MaybeSignal<T[K] | undefined>;
