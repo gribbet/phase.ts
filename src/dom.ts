@@ -171,26 +171,25 @@ const setAttribute = (element: Element, key: string, value: unknown) => {
 };
 
 const updateStyle = (element: HTMLElement | SVGElement, value: unknown) => {
-  const apply = (v: unknown, clear: boolean) => {
-    if (typeof v === "string")
-      if (clear) element.style.cssText = v;
-      else element.style.cssText += ";" + v;
-    else if (Array.isArray(v)) {
-      if (clear) element.style.cssText = "";
-      for (const item of v) apply(item, false);
-    } else if (typeof v === "object" && v !== null) {
-      if (clear) element.style.cssText = "";
-      for (const [k, val] of Object.entries(v) as [string, unknown][])
-        if (val === undefined || val === null) element.style.removeProperty(k);
-        else if (k.startsWith("--"))
+  element.style.cssText = "";
+
+  const apply = (style: unknown) => {
+    if (typeof style === "string")
+      element.style.cssText += `${element.style.cssText ? ";" : ""}${style}`;
+    else if (Array.isArray(style)) style.forEach(apply);
+    else if (typeof style === "object" && style !== null)
+      for (const [key, value] of Object.entries(style) as [string, unknown][])
+        if (value === undefined || value === null)
+          element.style.removeProperty(key);
+        else if (key.startsWith("--"))
           element.style.setProperty(
-            k,
-            typeof val === "number" ? String(val) : (val as string),
+            key,
+            typeof value === "number" ? String(value) : (value as string),
           );
-        else Reflect.set(element.style, k, val);
-    } else if (clear) element.style.cssText = "";
+        else Reflect.set(element.style, key, value);
   };
-  apply(value, true);
+
+  apply(value);
 };
 
 const svgNamespace = "http://www.w3.org/2000/svg";
