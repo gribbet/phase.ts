@@ -31,7 +31,7 @@ declare global {
       children: Element[];
     };
 
-    type SimpleElement =
+    type Element =
       | Node
       | string
       | number
@@ -39,9 +39,8 @@ declare global {
       | undefined
       | readonly Element[]
       | VElement
-      | VComponent;
-
-    type Element = SimpleElement | Signal<SimpleElement>;
+      | VComponent
+      | (Signal<unknown> & (() => Element));
 
     type Reactive<T> = {
       [K in keyof T]?: MaybeSignal<T[K] | undefined>;
