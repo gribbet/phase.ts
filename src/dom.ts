@@ -48,7 +48,8 @@ export const mount = (
   container: Element | DocumentFragment,
   anchor: Node | undefined = undefined,
 ): Node[] => {
-  if (child === undefined || typeof child === "boolean") return [];
+  if (child === null || child === undefined || typeof child === "boolean")
+    return [];
 
   if (typeof child === "string" || typeof child === "number") {
     const node = document.createTextNode(String(child));
@@ -119,10 +120,10 @@ const remove = (nodes: Node[]) =>
   nodes.forEach(_ => _.parentNode?.removeChild(_));
 
 const isVElement = (_: JSX.Element): _ is JSX.VElement =>
-  typeof _ === "object" && VELEMENT in _;
+  _ !== null && typeof _ === "object" && VELEMENT in _;
 
 const isVComponent = (_: JSX.Element): _ is JSX.VComponent =>
-  typeof _ === "object" && VCOMPONENT in _;
+  _ !== null && typeof _ === "object" && VCOMPONENT in _;
 
 const isElementArray = (value: JSX.Element): value is readonly JSX.Element[] =>
   Array.isArray(value);

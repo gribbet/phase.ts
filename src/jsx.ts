@@ -6,7 +6,7 @@ export const VCOMPONENT = Symbol("vcomponent");
 export type CSSProperties = {
   [K in keyof CSSStyleDeclaration]?: string | number | undefined;
 } & {
-  [key: string]: string | number | undefined;
+  [key: `--${string}`]: string | number | undefined;
 };
 
 export type StyleValue = string | CSSProperties | undefined;
@@ -36,6 +36,7 @@ declare global {
       | string
       | number
       | boolean
+      | null
       | undefined
       | readonly Element[]
       | VElement
