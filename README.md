@@ -1,13 +1,12 @@
 # phase.ts
 
-A tiny JSX renderer for [signaloits](https://github.com/gribbet/signaloits).
+A tiny reactive JSX renderer.
 
 phase.ts connects fine-grained signals directly to the DOM. Components run once
 to describe their DOM and reactive relationships; when a signal changes, only
 the affected text, attribute, or list is updated.
 
 There is no virtual DOM, component rerendering, or framework-specific compiler.
-The signaloits API is re-exported, so there is only one reactive model to learn.
 
 ## Setup
 
