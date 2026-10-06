@@ -2,6 +2,20 @@
 
 A lightweight reactive UI library.
 
+## TypeScript
+
+Use the standard automatic JSX transform:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "phase.ts"
+  }
+}
+```
+
+
 ## Examples
 
 ### Counter
