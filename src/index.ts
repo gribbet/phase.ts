@@ -7,7 +7,10 @@ export * from "signaloits";
 
 import { mount } from "./dom";
 
-export const render = (code: () => JSX.Element, container: HTMLElement) => {
+export const render = (
+  code: () => JSX.ReactiveElement,
+  container: HTMLElement,
+) => {
   container.innerHTML = "";
   return root(_ => (mount(code(), container), _));
 };

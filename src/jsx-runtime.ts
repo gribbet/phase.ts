@@ -8,7 +8,7 @@ export const jsx = (
   props: Record<string, unknown>,
 ): JSX.Element => {
   const { children, ...attributes } = props;
-  return createElement(type, attributes, children as JSX.Element);
+  return createElement(type, attributes, children as JSX.ReactiveElement);
 };
 
 export const jsxs = (
@@ -17,6 +17,10 @@ export const jsxs = (
 ): JSX.Element => {
   const { children, ...attributes } = props;
   if (Array.isArray(children))
-    return createElement(type, attributes, ...(children as JSX.Element[]));
-  return createElement(type, attributes, children as JSX.Element);
+    return createElement(
+      type,
+      attributes,
+      ...(children as JSX.ReactiveElement[]),
+    );
+  return createElement(type, attributes, children as JSX.ReactiveElement);
 };

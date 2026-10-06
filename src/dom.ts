@@ -4,12 +4,12 @@ import { VCOMPONENT, VELEMENT } from "./jsx";
 
 export type Component<
   P extends Record<string, unknown> = Record<string, unknown>,
-> = (props: P) => JSX.Element;
+> = (props: P) => JSX.ReactiveElement;
 
 export const createElement = (
   type: keyof JSX.IntrinsicElements | Component,
   props: Record<string, unknown> | null,
-  ...children: JSX.Element[]
+  ...children: JSX.ReactiveElement[]
 ): JSX.Element => {
   if (typeof type === "string")
     return {
@@ -30,25 +30,26 @@ type H = {
   <T extends keyof JSX.IntrinsicElements>(
     type: T,
     props: JSX.IntrinsicElements[T] | null,
-    ...children: JSX.Element[]
+    ...children: JSX.ReactiveElement[]
   ): JSX.Element;
   <P extends Record<string, unknown>>(
     type: Component<P>,
     props: P | null,
-    ...children: JSX.Element[]
+    ...children: JSX.ReactiveElement[]
   ): JSX.Element;
 };
 
 export const h: H = (
   type: keyof JSX.IntrinsicElements | Component,
   props: Record<string, unknown> | null,
-  ...children: JSX.Element[]
+  ...children: JSX.ReactiveElement[]
 ): JSX.Element => createElement(type, props, ...children);
 
-export const Fragment = ({ children }: { children?: JSX.Element }) => children;
+export const Fragment = ({ children }: { children?: JSX.ReactiveElement }) =>
+  children;
 
 export const mount = (
-  child: JSX.Element,
+  child: JSX.ReactiveElement,
   container: Element | DocumentFragment,
   anchor?: Node,
 ): Node[] => {
@@ -69,7 +70,7 @@ export const mount = (
     const marker = document.createTextNode("");
     container.insertBefore(marker, anchor ?? null);
 
-    const items = derived<readonly JSX.Element[]>(() => {
+    const items = derived<readonly JSX.ReactiveElement[]>(() => {
       const next = resolve(signal);
       return isElementArray(next) ? next : [next];
     });
@@ -123,14 +124,15 @@ export const mount = (
 const remove = (nodes: Node[]) =>
   nodes.forEach(_ => _.parentNode?.removeChild(_));
 
-const isVElement = (_: JSX.Element): _ is JSX.VElement =>
+const isVElement = (_: JSX.ReactiveElement): _ is JSX.VElement =>
   _ !== null && typeof _ === "object" && VELEMENT in _;
 
-const isVComponent = (_: JSX.Element): _ is JSX.VComponent =>
+const isVComponent = (_: JSX.ReactiveElement): _ is JSX.VComponent =>
   _ !== null && typeof _ === "object" && VCOMPONENT in _;
 
-const isElementArray = (value: JSX.Element): value is readonly JSX.Element[] =>
-  Array.isArray(value);
+const isElementArray = (
+  value: JSX.ReactiveElement,
+): value is readonly JSX.ReactiveElement[] => Array.isArray(value);
 
 const isSvg = (tag: string, parent: Element | DocumentFragment) =>
   tag === "svg" ||

@@ -1,4 +1,4 @@
-import type { MaybeSignal, Signal } from "signaloits";
+import type { MaybeSignal } from "signaloits";
 
 export const VELEMENT = Symbol("velement");
 export const VCOMPONENT = Symbol("vcomponent");
@@ -19,30 +19,31 @@ declare global {
         [VELEMENT]: true;
         tag: T;
         attributes: Record<string, unknown>;
-        children: Element[];
+        children: ReactiveElement[];
       };
 
     type VComponent<
       P extends Record<string, unknown> = Record<string, unknown>,
     > = {
       [VCOMPONENT]: true;
-      component: (props: P) => Element;
+      component: (props: P) => ReactiveElement;
       props: P;
-      children: Element[];
+      children: ReactiveElement[];
     };
 
-    type ElementValue =
+    type VNode = VElement | VComponent;
+
+    type Element =
       | Node
       | string
       | number
       | boolean
       | null
       | undefined
-      | readonly Element[]
-      | VElement
-      | VComponent;
+      | readonly ReactiveElement[]
+      | VNode;
 
-    type Element = ElementValue | Signal<ElementValue>;
+    type ReactiveElement = MaybeSignal<Element>;
 
     type Reactive<T> = {
       [K in keyof T]?: MaybeSignal<T[K] | undefined>;
@@ -58,7 +59,7 @@ declare global {
       class?: MaybeSignal<string | undefined>;
       style?: MaybeSignal<StyleValue | StyleValue[] | undefined>;
       ref?: (_: T) => void;
-      children?: Element;
+      children?: ReactiveElement;
       [key: `aria-${string}`]: MaybeSignal<
         string | number | boolean | undefined
       >;
@@ -84,7 +85,9 @@ declare global {
         : SVGAttributeValue;
     }> &
       BaseAttributes<T> &
-      EventHandlers<T>;
+      EventHandlers<T> & {
+        [attribute: string]: unknown;
+      };
 
     type IntrinsicElements = {
       [K in keyof HTMLElementTagNameMap]: HTMLAttributes<

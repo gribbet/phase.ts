@@ -13,6 +13,10 @@ export const jsxDEV = (
 ): JSX.Element => {
   const { children, ...attributes } = props;
   if (isStaticChildren && Array.isArray(children))
-    return createElement(type, attributes, ...(children as JSX.Element[]));
-  return createElement(type, attributes, children as JSX.Element);
+    return createElement(
+      type,
+      attributes,
+      ...(children as JSX.ReactiveElement[]),
+    );
+  return createElement(type, attributes, children as JSX.ReactiveElement);
 };
