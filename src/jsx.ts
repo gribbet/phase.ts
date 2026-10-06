@@ -18,7 +18,7 @@ declare global {
       {
         [VELEMENT]: true;
         tag: T;
-        attributes: Partial<IntrinsicElements[T]>;
+        attributes: Record<string, unknown>;
         children: Element[];
       };
 
@@ -50,7 +50,7 @@ declare global {
 
     type EventHandlers<T> = {
       [K in keyof HTMLElementEventMap as `on${Capitalize<K>}`]?: (
-        event: HTMLElementEventMap[K] & { currentTarget: T; target: T },
+        event: HTMLElementEventMap[K] & { currentTarget: T },
       ) => void;
     };
 
@@ -59,7 +59,12 @@ declare global {
       style?: MaybeSignal<StyleValue | StyleValue[] | undefined>;
       ref?: (_: T) => void;
       children?: Element;
-      [key: `data-${string}`]: unknown;
+      [key: `aria-${string}`]: MaybeSignal<
+        string | number | boolean | undefined
+      >;
+      [key: `data-${string}`]: MaybeSignal<
+        string | number | boolean | undefined
+      >;
     };
 
     type ElementProps<T> = Omit<
@@ -79,9 +84,7 @@ declare global {
         : SVGAttributeValue;
     }> &
       BaseAttributes<T> &
-      EventHandlers<T> & {
-        [key: string]: unknown;
-      };
+      EventHandlers<T>;
 
     type IntrinsicElements = {
       [K in keyof HTMLElementTagNameMap]: HTMLAttributes<

@@ -167,9 +167,17 @@ const setAttribute = (element: Element, key: string, value: unknown) => {
   )
     updateStyle(element, value);
   else if (value === undefined || value === null) element.removeAttribute(key);
-  else if (element instanceof HTMLElement && key in element)
+  else if (key.startsWith("aria-") || key.startsWith("data-")) {
+    if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean"
+    )
+      element.setAttribute(key, String(value));
+  } else if (element instanceof HTMLElement && key in element)
     Reflect.set(element, key, value);
   else if (value === true) element.setAttribute(key, "");
+  else if (value === false) element.removeAttribute(key);
   else if (typeof value === "string" || typeof value === "number")
     element.setAttribute(key, String(value));
 };
