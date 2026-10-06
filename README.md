@@ -1,10 +1,21 @@
 # phase.ts
 
-A lightweight reactive UI library.
+A tiny JSX renderer for [signaloits](https://github.com/gribbet/signaloits).
 
-## TypeScript
+phase.ts connects fine-grained signals directly to the DOM. Components run once
+to describe their DOM and reactive relationships; when a signal changes, only
+the affected text, attribute, or list is updated.
 
-Use the standard automatic JSX transform:
+There is no virtual DOM, component rerendering, or framework-specific compiler.
+The signaloits API is re-exported, so there is only one reactive model to learn.
+
+## Setup
+
+```sh
+npm install phase.ts
+```
+
+Use TypeScript's standard automatic JSX transform:
 
 ```json
 {
@@ -15,47 +26,49 @@ Use the standard automatic JSX transform:
 }
 ```
 
+## Counter
 
-## Examples
+Signals can be rendered directly:
 
-### Counter
 ```tsx
-import { signal, render } from "phase.ts";
+import { render, signal } from "phase.ts";
 
 const Counter = () => {
   const [count, setCount] = signal(0);
 
   return (
-    <>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count() + 1)}>Increment</button>
-      <button onClick={() => setCount(count() - 1)}>Decrement</button>
-    </>
+    <button onClick={() => setCount(count() + 1)}>
+      Count: {count}
+    </button>
   );
 };
 
-render(() => <Counter />, document.body);
+render(Counter, document.body);
 ```
 
-### Mapped List
+## Lists
+
+`map` preserves each item's DOM and reactive ownership as the list changes:
+
 ```tsx
-import { signal, map, render } from "phase.ts";
+import { map, render, signal } from "phase.ts";
 
 const List = () => {
-  const [items, setItems] = signal(["A", "B", "C"]);
+  const [items, setItems] = signal([1, 2, 3]);
 
   return (
-    <ul>
-      {map(items, (item) => (
-        <li>{item}</li>
-      ))}
-    </ul>
+    <section>
+      <button onClick={() => setItems([...items(), items().length + 1])}>
+        Add item
+      </button>
+      <ul>
+        {map(items, item => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    </section>
   );
 };
-```
 
-## Features
-- **No Compiler**: Standard TypeScript/JSX without build-time transforms.
-- **Run-Once Components**: Component logic executes only once to build the reactive graph.
-- **Fine-Grained**: Only the specific parts of the DOM that change are updated.
-- **TypeScript First**: Full type safety for reactivity and components.
+render(List, document.body);
+```
