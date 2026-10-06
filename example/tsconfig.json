@@ -9,8 +9,7 @@
     "noEmit": true,
     "paths": {
       "phase.ts": ["../src/index.ts"],
-      "phase.ts/jsx-runtime": ["../src/jsx-runtime.ts"],
-      "phase.ts/jsx-dev-runtime": ["../src/jsx-dev-runtime.ts"]
+      "phase.ts/jsx-runtime": ["../src/jsx-runtime.ts"]
     }
   },
   "include": ["src"]
