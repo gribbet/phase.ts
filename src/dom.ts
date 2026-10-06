@@ -6,26 +6,29 @@ export type Component<
   P extends Record<string, unknown> = Record<string, unknown>,
 > = (props: P) => JSX.Element;
 
-export function h<T extends keyof JSX.IntrinsicElements>(
-  type: T,
-  props: JSX.IntrinsicElements[T] | null,
-  ...children: JSX.Element[]
-): JSX.VElement<T>;
-export function h<P extends Record<string, unknown>>(
-  type: Component<P>,
-  props: P | null,
-  ...children: JSX.Element[]
-): JSX.VComponent<P>;
-export function h(
+type H = {
+  <T extends keyof JSX.IntrinsicElements>(
+    type: T,
+    props: JSX.IntrinsicElements[T] | null,
+    ...children: JSX.Element[]
+  ): JSX.Element;
+  <P extends Record<string, unknown>>(
+    type: Component<P>,
+    props: P | null,
+    ...children: JSX.Element[]
+  ): JSX.Element;
+  (
+    type: keyof JSX.IntrinsicElements | Component,
+    props: Record<string, unknown> | null,
+    ...children: JSX.Element[]
+  ): JSX.Element;
+};
+
+export const h: H = (
   type: keyof JSX.IntrinsicElements | Component,
   props: Record<string, unknown> | null,
   ...children: JSX.Element[]
-): JSX.Element;
-export function h(
-  type: keyof JSX.IntrinsicElements | Component,
-  props: Record<string, unknown> | null,
-  ...children: JSX.Element[]
-): JSX.Element {
+): JSX.Element => {
   if (typeof type === "string")
     return {
       [VELEMENT]: true,
@@ -39,7 +42,7 @@ export function h(
     props: props ?? {},
     children,
   };
-}
+};
 
 export const Fragment = ({ children }: { children?: JSX.Element }) => children;
 
@@ -94,7 +97,7 @@ export const mount = (
   if (isVElement(child)) {
     const { tag, attributes, children } = child;
     const element = isSvg(tag, container)
-      ? document.createElementNS(svgNamespace, tag)
+      ? document.createElementNS("http://www.w3.org/2000/svg", tag)
       : document.createElement(tag);
     applyAttributes(element, attributes);
     children.forEach(_ => mount(_, element, undefined));
@@ -191,5 +194,3 @@ const updateStyle = (element: HTMLElement | SVGElement, value: unknown) => {
 
   apply(value);
 };
-
-const svgNamespace = "http://www.w3.org/2000/svg";
