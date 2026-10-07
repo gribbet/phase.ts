@@ -1,6 +1,6 @@
 {
   "name": "phase.ts",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A lightweight reactive UI library.",
   "license": "MIT",
   "type": "module",
