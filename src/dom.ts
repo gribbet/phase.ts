@@ -67,33 +67,37 @@ export const mount = (
 
   if (typeof child === "function") {
     const signal = child;
-    const marker = document.createTextNode("");
-    container.insertBefore(marker, anchor ?? null);
+    const text = document.createTextNode("");
+    container.insertBefore(text, anchor ?? null);
 
     const items = derived<readonly JSX.ReactiveElement[]>(() => {
       const next = resolve(signal);
-      return isElementArray(next) ? next : [next];
+      return isText(next) ? [] : isElementArray(next) ? next : [next];
     });
     const entries = map(items, item => {
-      const nodes = mount(untrack(item), container, marker);
+      const value = untrack(item);
+      const nodes = mount(value, container, text);
       defer(() => remove(nodes));
       return nodes;
     });
 
     effect(() => {
-      let cursor: Node = marker;
+      const value = resolve(signal);
+      text.data = isText(value) ? String(value) : "";
+      const nodes = entries().flat();
 
-      for (const nodes of entries().toReversed())
-        for (const node of nodes.toReversed()) {
-          if (node.parentNode !== container || node.nextSibling !== cursor)
-            container.insertBefore(node, cursor);
-          cursor = node;
-        }
+      let cursor: Node = text;
+
+      for (const node of nodes.toReversed()) {
+        if (node.parentNode !== container || node.nextSibling !== cursor)
+          container.insertBefore(node, cursor);
+        cursor = node;
+      }
     });
 
-    defer(() => remove([marker]));
+    defer(() => remove([text]));
 
-    return [...entries().flat(), marker];
+    return [...entries().flat(), text];
   }
 
   if (isVElement(child)) {
@@ -111,6 +115,12 @@ export const mount = (
     const { component, props, children } = child;
     const element = untrack(() => component({ ...props, children }));
     return mount(element, container, anchor);
+  }
+
+  if (child instanceof DocumentFragment) {
+    const nodes = Array.from(child.childNodes);
+    container.insertBefore(child, anchor ?? null);
+    return nodes;
   }
 
   if (child instanceof Node) {
@@ -133,6 +143,9 @@ const isVComponent = (_: JSX.ReactiveElement): _ is JSX.VComponent =>
 const isElementArray = (
   value: JSX.ReactiveElement,
 ): value is readonly JSX.ReactiveElement[] => Array.isArray(value);
+
+const isText = (value: JSX.ReactiveElement): value is string | number =>
+  typeof value === "string" || typeof value === "number";
 
 const isSvg = (tag: string, parent: Element | DocumentFragment) =>
   tag === "svg" ||
