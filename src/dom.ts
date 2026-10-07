@@ -113,7 +113,7 @@ export const mount = (
 
   if (isVComponent(child)) {
     const { component, props, children } = child;
-    const element = untrack(() => component({ ...props, children }));
+    const element = component({ ...props, children });
     return mount(element, container, anchor);
   }
 
