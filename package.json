@@ -1,8 +1,12 @@
 {
   "name": "phase.ts",
-  "version": "1.0.4",
+  "version": "0.0.0-development",
   "description": "A lightweight reactive UI library.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gribbet/phase.git"
+  },
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -29,7 +33,7 @@
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@gribbet/vite-config": "1.0.1",
+    "@gribbet/vite-config": "1.0.5",
     "typescript": "^7.0.2",
     "vite-plus": "1.1.0"
   },
