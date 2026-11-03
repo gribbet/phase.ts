@@ -1,5 +1,6 @@
 import "./jsx";
-import { createElement, type Component, Fragment } from "./dom";
+import type { Component } from "./dom";
+import { createElement, Fragment } from "./dom";
 
 export { Fragment };
 
